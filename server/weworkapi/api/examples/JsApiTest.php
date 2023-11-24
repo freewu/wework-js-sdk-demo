@@ -26,10 +26,10 @@ try {
     $ticket = $api->JsApiTicketGet();
     echo "<br/>JsApiTicket: " . $ticket . "\n<br/>";
     
-    //
-    $agent = $api->AgentConfigTicketGet();
-    echo "<br/>Agent config: \n<br/>";
-    var_dump($agent);
+    // //
+    // $agent = $api->AgentConfigTicketGet();
+    // echo "<br/>Agent config: \n<br/>";
+    //var_dump($agent);
 } catch (Exception $e) { 
     echo $e->getMessage() . "\n";
 }
