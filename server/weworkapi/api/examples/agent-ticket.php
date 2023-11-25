@@ -6,7 +6,7 @@ include_once("../src/ServiceProviderAPI.class.php");
 // 
 $config = require('./config.php');
 // 
-$api = new CorpAPI($config['APP_ID'], $config['APP_SECRET']);
+$api = new CorpAPI($config['CORP_ID'], $config['APP_SECRET']);
  
 try {
     $agent = $api->AgentConfigTicketGet();
