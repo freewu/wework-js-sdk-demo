@@ -56,6 +56,8 @@ const rules = reactive<FormRules<RuleForm>>({
   ],
 })
 
+ console.log("aaaaaaaaaaaaa");
+
 const submitForm = async (formEl: FormInstance | undefined) => {
     console.log("submitForm");
   if (!formEl) return
@@ -79,6 +81,7 @@ const doooo = (data) => {
     let url = window.location.origin;
     let ss = sign(data.ticket,str,timestamp,url);
     console.log(ss);
+    //return ;
 
     //console.log(sign(data.ticket,str,timestamp,url));
 
@@ -120,7 +123,16 @@ const doooo = (data) => {
             'addCard',
             'chooseCard',
             'openCard'
-        ] // 必填，需要使用的JS接口列表，凡是要调用的接口都需要传进来
+        ], // 必填，需要使用的JS接口列表，凡是要调用的接口都需要传进来
+        success: function(res) {
+            console.log("wx.config success");
+            console.log(res);
+        },
+        fail: function(res) {
+            console.log("wx.config fail");
+            console.log(res);
+            error.value = res;
+        }
     });
 
     // 通过error接口处理失败验证
@@ -133,6 +145,7 @@ const doooo = (data) => {
 
     // 通过ready接口处理成功验证
     wx.ready(function() {
+        //let url = location.href;
         console.log("wx.ready");
         // config信息验证后会执行ready方法，所有接口调用都必须在config接口获得结果之后，
         /// config是一个客户端的异步操作，所以如果需要在页面加载时就调用相关接口，则须把相关接口放在ready函数中调用来确保正确执行。
@@ -144,7 +157,7 @@ const doooo = (data) => {
             error.value = "不存在 wx.agentConfig 方法";
             return;
         }
-        let ss2 = sign(data.agent_ticket,str,timestamp,url);
+        let ss2 = sign(data.agent_ticket,str,timestamp,url + "/");
         console.log(ss2);
         wx.agentConfig({
             corpid: data.corpid, // 必填，企业微信的corpid，必须与当前登录的企业一致
@@ -152,62 +165,82 @@ const doooo = (data) => {
             timestamp: timestamp, // 必填，生成签名的时间戳
             nonceStr: str, // 必填，生成签名的随机串
             signature: ss2,// 必填，签名，见附录-JS-SDK使用权限签名算法
-            jsApiList: ['selectExternalContact','shareToExternalChat'], //必填，传入需要使用的接口名称
+            jsApiList: ['selectExternalContact','shareToExternalChat','openExistedChatWithMsg'], //必填，传入需要使用的接口名称
             success: function(res) {
                 console.log("wx.agentConfig success");
                 console.log(res);
-                wx.invoke("shareToExternalChat", {
-                    chatIds: [ data.chatid ], //客户群ID，从4.1.10版本开始支持（mac端不支持）
-                    text: {
-                        content: data.text,    // 文本内容
-                    },
-                    attachments: [
-                            // {
-                            //     msgtype: "image",    // 消息类型，必填
-                            //     image: {
-                            //             mediaid: "",      // 图片的素材id
-                            //             imgUrl: "",        // 图片的imgUrl,跟图片mediaid填其中一个即可
-                            //     },
-                            // },
-                            // {
-                            //     msgtype: "link",    // 消息类型，必填
-                            //     link: {
-                            //             title: "",        // H5消息标题
-                            //             imgUrl: "",    // H5消息封面图片URL
-                            //             desc: "",    // H5消息摘要
-                            //             url: "",        // H5消息页面url 必填
-                            //     },
-                            // },
-                            // {
-                            //     msgtype: "miniprogram",    // 消息类型，必填
-                            //     miniprogram: {
-                            //             appid: "",    // 小程序的appid
-                            //             title: "",        // 小程序消息的title
-                            //             imgUrl : "",    //小程序消息的封面图。必须带http或者https协议头
-                            //             page: "",        //小程序消息打开后的路径，注意要以.html作为后缀，否则在微信端打开会提示找不到页面
-                            //     },
-                            // },
-                            // {
-                            //     msgtype: "video",    // 消息类型，必填
-                            //     video:{
-                            //             mediaid:"",        // 视频的素材id
-                            //     },
-                            // },
-                            // {
-                            //     msgtype: "file",    // 消息类型，必填，从3.1.12版本开始支持
-                            //     file:{
-                            //             mediaid:"",        // 文件的素材id，必填
-                            //     },
-                            // },
-                    ]},function(res) {
-                        if (res.err_msg == "shareToExternalChat:ok") {
-                            error.value = "shareToExternalChat:ok";
+                wx.invoke("openExistedChatWithMsg", {
+                    chatId: data.chatid,
+                    msg: {
+                      msgtype: "link",
+                      link: {
+                          title: data.text,
+                          desc: "desc1",
+                          url: "http://www.baidu.com",
+                          //imgUrl: "imgurl1"
+                      }
+                    }
+                  },function(res) {
+                        if (res.err_msg == "openExistedChatWithMsg:ok")
+                        {
                         }
                         console.log(res);
-                    }
+                        error.value = res.err_msg;
+                  }
                 );
+                // wx.invoke("shareToExternalChat", {
+                //     chatIds: [ data.chatid ], //客户群ID，从4.1.10版本开始支持（mac端不支持）
+                //     text: {
+                //         content: data.text,    // 文本内容
+                //     },
+                //     attachments: [
+                //             // {
+                //             //     msgtype: "image",    // 消息类型，必填
+                //             //     image: {
+                //             //             mediaid: "",      // 图片的素材id
+                //             //             imgUrl: "",        // 图片的imgUrl,跟图片mediaid填其中一个即可
+                //             //     },
+                //             // },
+                //             // {
+                //             //     msgtype: "link",    // 消息类型，必填
+                //             //     link: {
+                //             //             title: "",        // H5消息标题
+                //             //             imgUrl: "",    // H5消息封面图片URL
+                //             //             desc: "",    // H5消息摘要
+                //             //             url: "",        // H5消息页面url 必填
+                //             //     },
+                //             // },
+                //             // {
+                //             //     msgtype: "miniprogram",    // 消息类型，必填
+                //             //     miniprogram: {
+                //             //             appid: "",    // 小程序的appid
+                //             //             title: "",        // 小程序消息的title
+                //             //             imgUrl : "",    //小程序消息的封面图。必须带http或者https协议头
+                //             //             page: "",        //小程序消息打开后的路径，注意要以.html作为后缀，否则在微信端打开会提示找不到页面
+                //             //     },
+                //             // },
+                //             // {
+                //             //     msgtype: "video",    // 消息类型，必填
+                //             //     video:{
+                //             //             mediaid:"",        // 视频的素材id
+                //             //     },
+                //             // },
+                //             // {
+                //             //     msgtype: "file",    // 消息类型，必填，从3.1.12版本开始支持
+                //             //     file:{
+                //             //             mediaid:"",        // 文件的素材id，必填
+                //             //     },
+                //             // },
+                //     ]},function(res) {
+                //         if (res.err_msg == "shareToExternalChat:ok") {
+                //             error.value = "shareToExternalChat:ok";
+                //         }
+                //         console.log(res);
+                //     }
+                //);
             },
             fail: function(res) {
+                console.log("wx.agentConfig fail");
                 console.log(res);
                 if(res.errMsg.indexOf('function not exist') > -1) {
                     console.log('版本过低请升级')
@@ -335,7 +368,7 @@ const doooo = (data) => {
 
 <template>
   <div class="base-container">
- 测试页aaaaa1908 {{ error }}
+ 测试页aaaaa2052 {{ error }}
   <el-form ref="ruleFormRef" :model="form" label-width="120px" :rules="rules">
   <!--  corpid: '', // 企业微信的corpID
   appid: '',  // 应用ID
@@ -360,7 +393,7 @@ const doooo = (data) => {
         <el-form-item label="agent_ticket" prop="agent_ticket">
       <el-input v-model="form.agent_ticket" clearable placeholder="wx.agentConfig 需要使用的 ticket 用于生成签名"/>
       <br/>
-      <a href="https://work.jiaju-online.cn/server/weworkapi/api/examples/JsApiTest.php" target="_blank">https://work.jiaju-online.cn/server/weworkapi/api/examples/JsApiTest.php</a>
+      <a href="https://work.jiaju-online.cn/server/weworkapi/api/examples/agent-ticket.php" target="_blank">https://work.jiaju-online.cn/server/weworkapi/api/examples/agent-ticket.php</a>
     </el-form-item>
     <el-form-item label="chatid"  prop="chatid">
       <el-input v-model="form.chatid" clearable placeholder="需要发送消息的外部群"/>
