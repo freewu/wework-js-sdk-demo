@@ -23,6 +23,8 @@ interface RuleForm {
   agent_ticket: string
   chatid: string
   text: string
+  desc: string
+  url: string
 }
 
 const ruleFormRef = ref<FormInstance>()
@@ -33,6 +35,8 @@ const form = reactive<RuleForm>({
   agent_ticket: '', // 使用 agentConfig 需要的 ticket
   chatid: '', // 需要发送消息的外部群 ID
   text: '', // 需要发送的消息内容
+  url: 'http://163.com', // 发送的链接
+  desc: '' // 描述信息
 })
 
 const rules = reactive<FormRules<RuleForm>>({
@@ -52,6 +56,9 @@ const rules = reactive<FormRules<RuleForm>>({
     { required: true, message: '不能为空', trigger: 'blur' },
   ],
   text: [
+    { required: true, message: '不能为空', trigger: 'blur' },
+  ],
+  desc: [
     { required: true, message: '不能为空', trigger: 'blur' },
   ],
 })
@@ -175,8 +182,8 @@ const doooo = (data) => {
                       msgtype: "link",
                       link: {
                           title: data.text,
-                          desc: "desc1",
-                          url: "http://www.baidu.com",
+                          desc: data.desc,
+                          url: data.url,
                           //imgUrl: "imgurl1"
                       }
                     }
@@ -402,6 +409,12 @@ const doooo = (data) => {
     </el-form-item>
     <el-form-item label="发送的内容"  prop="text">
       <el-input v-model="form.text" type="textarea" />
+    </el-form-item>
+    <el-form-item label="描述信息"  prop="desc">
+      <el-input v-model="form.desc" type="textarea" />
+    </el-form-item>
+    <el-form-item label="url"  prop="url">
+      <el-input v-model="form.url" clearable placeholder="需要发送的链接地址"/>
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="submitForm(ruleFormRef)">发送</el-button>
